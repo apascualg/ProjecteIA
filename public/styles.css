@@ -30,7 +30,24 @@ footer {
   text-align: center;
 }
 
-footer p { margin: 0; }
+footer p {
+  margin: 0;
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-weight: 300;
+  animation: entradaPeu 600ms ease-out;
+}
+
+@keyframes entradaPeu {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 main {
   display: grid;
