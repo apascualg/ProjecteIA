@@ -23,6 +23,15 @@ header {
 
 header h1 { margin-right: auto; }
 
+footer {
+  padding: 1rem 2rem;
+  background: var(--color-principal);
+  color: white;
+  text-align: center;
+}
+
+footer p { margin: 0; }
+
 main {
   display: grid;
   grid-template-columns: 1fr 280px;
