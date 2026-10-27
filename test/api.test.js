@@ -38,6 +38,27 @@ test('GET /api/productes retorna null i 0 per a un producte sense ressenyes', as
   assert.equal(producte.numRessenyes, 0);
 });
 
+test('POST /api/carret/total retorna subtotal, enviament i total', async () => {
+  const resposta = await fetch(`${base}/api/carret/total`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      items: [
+        { preu: 20, quantitat: 1, pes: 0.8 },
+        { preu: 15, quantitat: 1, pes: 0.5 },
+      ],
+      descompte: 0,
+    }),
+  });
+
+  assert.equal(resposta.status, 200);
+  assert.deepEqual(await resposta.json(), {
+    subtotal: 35,
+    enviament: 5.9,
+    total: 40.9,
+  });
+});
+
 test('GET /api/productes?categoria=roba filtra per categoria', async () => {
   const resposta = await fetch(`${base}/api/productes?categoria=roba`);
   const productes = await resposta.json();
