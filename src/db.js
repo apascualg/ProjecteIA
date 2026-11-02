@@ -1,5 +1,10 @@
-import { DatabaseSync } from 'node:sqlite';
+import { DatabaseSync } from 'node:sqlite';import { pbkdf2Sync, randomBytes } from 'node:crypto';
 
+export function hashContrasenya(contrasenya) {
+  const sal = randomBytes(16).toString('hex');
+  const hash = pbkdf2Sync(contrasenya, sal, 100000, 64, 'sha256').toString('hex');
+  return `$pbkdf2$${sal}$${hash}`;
+}
 /**
  * Crea la base de dades en memòria i hi carrega dades de prova.
  * Cada vegada que s'inicia el servidor, les dades tornen a l'estat inicial.
@@ -54,8 +59,8 @@ export function crearBaseDades() {
   const insereixUsuari = db.prepare(
     'INSERT INTO usuaris (email, contrasenya, rol) VALUES (?, ?, ?)'
   );
-  insereixUsuari.run('admin@botiga.example.com', 'Admin2026!', 'admin');
-  insereixUsuari.run('client@botiga.example.com', 'client123', 'client');
+  insereixUsuari.run('admin@botiga.example.com', hashContrasenya('Admin2026!'), 'admin');
+  insereixUsuari.run('client@botiga.example.com', hashContrasenya('client123'), 'client');
 
   return db;
 }

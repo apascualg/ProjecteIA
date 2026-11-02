@@ -1,5 +1,11 @@
 const carret = [];
 
+function crearElementText(text, tagName = 'span') {
+  const element = document.createElement(tagName);
+  element.textContent = text;
+  return element;
+}
+
 async function carregarProductes(categoria = '') {
   const resposta = await fetch(`/api/productes?categoria=${categoria}`);
   const productes = await resposta.json();
@@ -9,15 +15,24 @@ async function carregarProductes(categoria = '') {
     const mitjana = p.numRessenyes > 0 ? `${Number(p.mitjana).toFixed(1)} / 5` : 'Sense ressenyes';
     const targeta = document.createElement('article');
     targeta.className = 'producte';
-    targeta.innerHTML = `
-      <h3>${p.nom}</h3>
-      <p>${p.preu.toFixed(2)} €</p>
-      <p>Valoració: ${mitjana}</p>
-      <button class="afegeix">Afegeix</button>
-      <button class="veure">Ressenyes</button>
-    `;
-    targeta.querySelector('.afegeix').addEventListener('click', () => afegirAlCarret(p));
-    targeta.querySelector('.veure').addEventListener('click', () => obrirDetall(p));
+
+    const nom = crearElementText(p.nom, 'h3');
+    const preu = crearElementText(`${p.preu.toFixed(2)} €`, 'p');
+    const valoracio = crearElementText(`Valoració: ${mitjana}`, 'p');
+
+    const botoAfegeix = document.createElement('button');
+    botoAfegeix.type = 'button';
+    botoAfegeix.className = 'afegeix';
+    botoAfegeix.textContent = 'Afegeix';
+    botoAfegeix.addEventListener('click', () => afegirAlCarret(p));
+
+    const botoVeure = document.createElement('button');
+    botoVeure.type = 'button';
+    botoVeure.className = 'veure';
+    botoVeure.textContent = 'Ressenyes';
+    botoVeure.addEventListener('click', () => obrirDetall(p));
+
+    targeta.append(nom, preu, valoracio, botoAfegeix, botoVeure);
     contenidor.appendChild(targeta);
   }
 }
@@ -33,9 +48,15 @@ async function afegirAlCarret(producte) {
 }
 
 async function actualitzarCarret() {
-  document.querySelector('#carret').innerHTML = carret
-    .map((i) => `<li>${i.nom} × ${i.quantitat}</li>`)
-    .join('');
+  const llistaCarret = document.querySelector('#carret');
+  llistaCarret.innerHTML = '';
+
+  for (const item of carret) {
+    const element = document.createElement('li');
+    element.textContent = `${item.nom} × ${item.quantitat}`;
+    llistaCarret.appendChild(element);
+  }
+
   const resposta = await fetch('/api/carret/total', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -60,9 +81,18 @@ async function obrirDetall(producte) {
 async function carregarRessenyes(producteId) {
   const resposta = await fetch(`/api/ressenyes?producteId=${producteId}`);
   const ressenyes = await resposta.json();
-  document.querySelector('#ressenyes').innerHTML = ressenyes
-    .map((r) => `<li><strong>${r.autor}</strong> (${r.puntuacio}/5): ${r.text}</li>`)
-    .join('');
+  const llistaRessenyes = document.querySelector('#ressenyes');
+  llistaRessenyes.innerHTML = '';
+
+  for (const r of ressenyes) {
+    const item = document.createElement('li');
+    const autor = document.createElement('strong');
+    autor.textContent = r.autor;
+    const text = document.createTextNode(` (${r.puntuacio}/5): ${r.text}`);
+
+    item.append(autor, text);
+    llistaRessenyes.appendChild(item);
+  }
 }
 
 document.querySelector('#form-ressenya').addEventListener('submit', async (e) => {
